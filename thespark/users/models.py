@@ -27,6 +27,7 @@ class MyBaseUserManager(BaseUserManager):
 		user = self.create_user(email=email,password=password,first_name=first_name,last_name=last_name,occupation=occupation,**extra_fields)
 		user.is_admin = True
 		user.is_staff = True
+		user.is_superuser = True
 		user.save(using=self._db)
 
 		return user
@@ -56,3 +57,11 @@ class MyAbstractUser(AbstractBaseUser, PermissionsMixin):
 
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['first_name','last_name','occupation']
+
+
+class CounsellorUser(models.Model):
+	relation = models.OneToOneField(MyAbstractUser,help_text="Connect a Counsellor to a user account.")
+
+
+class SparkUser(models.Model):
+	relation = models.OneToOneField(MyAbstractUser,help_text="Connect a spark user to a user account.")
