@@ -8,3 +8,4 @@ tornado == 4.3
 redis == 2.10.5
 tornado-redis == 2.4.18
 django-material == 0.5.1
+django-filter == 0.12.0
