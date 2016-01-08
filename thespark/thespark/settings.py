@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'chat',
     'events',
     'forums',
+    'rest_framework',
 ]
 
 MIDDLEWARE_CLASSES = [
