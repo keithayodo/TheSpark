@@ -12,7 +12,7 @@ class MyBaseUserManager(BaseUserManager):
 
 		#research self.model & normalize_email methods
 		user = self.model(
-			email = MyBaseUserManager.normalize_email(email),
+			email = MyBaseUserManager.normalize_email(email), #normalize_email lowercases domain part of email
 			first_name = first_name,
 			last_name = last_name,
 			occupation = occupation,
@@ -32,7 +32,8 @@ class MyBaseUserManager(BaseUserManager):
 
 		return user
 
-class MyAbstractUser(AbstractBaseUser, PermissionsMixin):
+#Change model name to AllUser
+class AllUser(AbstractBaseUser, PermissionsMixin):
 	email = models.EmailField(unique=True, help_text="User email address.")
 	first_name = models.CharField(max_length=50,help_text="User first name.")
 	last_name = models.CharField(max_length=50,help_text="User last name.")
@@ -60,8 +61,47 @@ class MyAbstractUser(AbstractBaseUser, PermissionsMixin):
 
 
 class CounsellorUser(models.Model):
-	relation = models.OneToOneField(MyAbstractUser,help_text="Connect a Counsellor to a user account.")
+	relation = models.OneToOneField(AllUser,help_text="Connect a Counsellor to a user account.")
 
+	"""
+	TODO: Profile picture URL
+	"""
+
+	def __unicode__(self):
+		return self.relation.email
 
 class SparkUser(models.Model):
-	relation = models.OneToOneField(MyAbstractUser,help_text="Connect a spark user to a user account.")
+	relation = models.OneToOneField(AllUser,help_text="Connect a spark user to a user account.")
+	bio = models.CharField(max_length=200,null=True,blank=True,help_text="Optional description abou this user.")
+	fb_link = models.URLField(null=True,blank=True,help_text="Optional link to user's fb profile.")
+	twitter_link = models.URLField(null=True,blank=True,help_text="Optional link to user's twitter profile.")
+
+	"""
+	TODO: Profile picture URL
+	"""
+
+	def __unicode__(self):
+		return self.relation.email
+
+ACCEPTED_ACCOMPLISHMENT_CATEGORIES = (
+		("Education","Education"),
+		("Technology","Technology"),
+		("Finance","Finance"),
+		("Agriculture","Agriculture"),
+	)
+
+class UserAccomplishment(models.Model):
+	relation = models.ForeignKey(SparkUser,help_text="Spark user creating the accomplishment.")
+	accomplishment_title = models.CharField(max_length=50, help_text="Accomplishment title.")
+	accomplishment_summary = models.CharField(max_length=200,help_text="Accomplishment summary.")
+	start_date = models.DateField(help_text="Date when this accomplishment began.")
+	end_date = models.DateField(help_text="Date when this accomplishment ended.")
+	created_at = models.DateTimeField(editable=False,auto_now_add=True,help_text="Date and Time when this accomplishment was created.")
+	updated_at = models.DateTimeField(editable=False,auto_now=True, help_text="Date and time accomplishment last updated.")
+
+class UserAccomplishmentTag(models.Model):
+	relation = models.ForeignKey(UserAccomplishment,help_text="Accomplishment being tagged.")
+	category = models.CharField(choices=ACCEPTED_ACCOMPLISHMENT_CATEGORIES,help_text="Category of tag.")
+
+	class Meta:
+		unique_together = ('relation','category')
