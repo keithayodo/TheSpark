@@ -99,9 +99,15 @@ class UserAccomplishment(models.Model):
 	created_at = models.DateTimeField(editable=False,auto_now_add=True,help_text="Date and Time when this accomplishment was created.")
 	updated_at = models.DateTimeField(editable=False,auto_now=True, help_text="Date and time accomplishment last updated.")
 
+	def __unicode__(self):
+		return '{0} : {1}'.format(self.relation, self.accomplishment_title)
+
 class UserAccomplishmentTag(models.Model):
 	relation = models.ForeignKey(UserAccomplishment,help_text="Accomplishment being tagged.")
-	category = models.CharField(choices=ACCEPTED_ACCOMPLISHMENT_CATEGORIES,help_text="Category of tag.")
+	category = models.CharField(max_length=50,choices=ACCEPTED_ACCOMPLISHMENT_CATEGORIES,help_text="Category of tag.")
 
 	class Meta:
 		unique_together = ('relation','category')
+
+	def __unicode__(self):
+		return '{0} : {1}'.format(self.relation.accomplishment_title,self.category)
