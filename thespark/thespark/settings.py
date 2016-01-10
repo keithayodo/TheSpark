@@ -37,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #django.contrib.sites required for django all-auth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    #include providers you want to enable
+    'allauth.socialaccount.providers.facebook',
     'users',
     'chat',
     'events',
@@ -102,6 +109,15 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_USER_MODEL = 'users.AllUser'
+
+SITE_ID = 1 #Required to avoid django all-auth login errors
+
+#custom user model django all-auth config
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
