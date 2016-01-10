@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'events',
     'forums',
     'rest_framework',
+    'django_filters',
+    'thespark_drf_utils',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -74,6 +76,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'thespark.wsgi.application'
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'PAGE_SIZE': 10
+}
 
 
 # Database
@@ -114,6 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+#TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 

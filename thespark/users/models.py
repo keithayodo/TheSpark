@@ -72,7 +72,7 @@ class CounsellorUser(models.Model):
 
 class SparkUser(models.Model):
 	relation = models.OneToOneField(AllUser,help_text="Connect a spark user to a user account.")
-	bio = models.CharField(max_length=200,null=True,blank=True,help_text="Optional description abou this user.")
+	bio = models.CharField(max_length=200,null=True,blank=True,help_text="Optional description about this user.")
 	fb_link = models.URLField(null=True,blank=True,help_text="Optional link to user's fb profile.")
 	twitter_link = models.URLField(null=True,blank=True,help_text="Optional link to user's twitter profile.")
 

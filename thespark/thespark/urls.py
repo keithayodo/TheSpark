@@ -13,9 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
+
+
+from rest_framework import routers, serializers, viewsets
+
+from chat.views import (
+    ConversationView,
+)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', ConversationView.as_view()),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

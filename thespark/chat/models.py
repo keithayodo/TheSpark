@@ -8,7 +8,7 @@ from users.models import AllUser, CounsellorUser, SparkUser
 
 class Conversation(models.Model):
     counsellor_instance =  models.ForeignKey(CounsellorUser, help_text="Counsellor instance.")
-    user_instance = models.ForeignKey(SparkUser, help_text="Spark user instance.")
+    user_instance = models.ForeignKey(SparkUser, help_text="Spark user instance.") #May need to change this to AllUser
 
     class Meta:
         unique_together = ('counsellor_instance','user_instance')
@@ -24,3 +24,9 @@ class ChatMessage(models.Model):
 
     def __unicode__(self):
         return '{0} :{1}'.format(self.sender,self.message)
+
+class LastConvoMessage(models.Model):
+    relation = models.OneToOneField(Conversation,help_text="Last message sent in this conversation.")
+    first_name = models.CharField(max_length=200,help_text="Full name of the sender")
+    message = models.CharField(max_length=1000,help_text="Last message sent in this conversation.")
+    created_at = models.DateTimeField(help_text="Time when the message was added to the system.")
