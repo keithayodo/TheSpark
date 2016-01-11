@@ -11,6 +11,11 @@ from users.services import (
     SparkUserSerializer,
 )
 
+from users.models import (
+    SparkUser,
+    CounsellorUser,
+)
+
 from .models import (
     Conversation,
     ChatMessage,
@@ -63,12 +68,28 @@ class ConversationService:
         except Exception as e:
             raise exceptions.NotFound(detail="Conversation does not exist.")
 
+    def does_user_belong_to_convo(self,user,id):
+        try:
+            if isinstance(user,SparkUser):
+                convo = self.viewset.get(user_instance=user,pk=id)
+                return True
+            elif isinstance(user,CounsellorUser):
+                convo = self.viewset.get(counsellor_instance=user,pk=id)
+                return True
+            else:
+                return False
+        except Conversation.NotFound as e:
+            return False
+
     def get_user_conversations(self,user):
         if isinstance(user,SparkUser):
             convos = self.viewset.filter(user_instance=user)
-        if isinstance(user,CounsellorUser):
+            return convos
+        elif isinstance(user,CounsellorUser):
             convos = self.viewset.filter(counsellor_instance=user)
-        return convos
+            return convos
+        else:
+            raise exceptions.PermissionDenied(details="No permission to view this content.")
 
     def get_user_conversation(self,user,id):
         try:

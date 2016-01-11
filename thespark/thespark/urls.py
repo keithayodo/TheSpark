@@ -21,11 +21,13 @@ from rest_framework import routers, serializers, viewsets
 
 from chat.views import (
     ConversationView,
+    TemplateTestView,
 )
 
 urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', ConversationView.as_view()),
+    url(r'^chat/conversation/$', TemplateTestView.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
