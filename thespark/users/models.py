@@ -2,8 +2,11 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.dispatch import receiver
 
 # Create your models here.
+
+from allauth.account.signals import user_signed_up
 
 class MyBaseUserManager(BaseUserManager):
 	def create_user(self,email,first_name,last_name,occupation,password=None,**extra_fields):
@@ -111,3 +114,13 @@ class UserAccomplishmentTag(models.Model):
 
 	def __unicode__(self):
 		return '{0} : {1}'.format(self.relation.accomplishment_title,self.category)
+
+@receiver(user_signed_up,dispatch_uid="my.user.sign.up.signal")
+def on_user_sign_up(request,user,sociallogin=None,**kwargs):
+	if sociallogin:
+		if sociallogin.account.provider == 'facebook':
+			try:
+				new_spark_user = SparkUser.objects.create(relation=user)
+				new_spark_user.save()
+			except SparkUser.IntegrityError as e:
+				return None

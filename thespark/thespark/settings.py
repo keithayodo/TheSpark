@@ -152,6 +152,10 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
+ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.SparkUserSignUpForm' #Add extra fields to sign up form
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #since we don't have a running SMTP server. avoid connection errors on signup
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
