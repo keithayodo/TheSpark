@@ -12,18 +12,32 @@ IsAuthenticatedOrReadOnly,
 )
 from rest_framework import exceptions
 
-from .services import ConversationService, ChatService
+from .services import (
+    ConversationService,
+    ChatService,
+    InboxService,
+    )
 
 class ConversationView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request,id,format=None):
         conversationService = ConversationService()
         convo = conversationService.check_conversation_exist(user=request.user,id=id)
-        #line above probabbly won't be here in production
+        #line above probabbly won't be here in production (should be in services.py)
         serializer_class = conversationService.get_serializer()
         serialized_data = serializer_class(convo)
         return Response(serialized_data.data)
 
+class LatestConversationMessageView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request,format=None):
+        inboxService = InboxService()
+        latest_convos = inboxService.get_latest_message_per_user_converstation(user=request.user)
+        serializer_class = inboxService.get_serializer()
+        serialized_data = serializer_class(latest_convos,many=True)
+        return Response(serialized_data.data)
+
+#drf template test
 class TemplateTestView(APIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = [TemplateHTMLRenderer]

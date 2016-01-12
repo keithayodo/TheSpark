@@ -22,6 +22,7 @@ from rest_framework import routers, serializers, viewsets
 from chat.views import (
     ConversationView,
     TemplateTestView,
+    LatestConversationMessageView,
 )
 
 urlpatterns = [
@@ -29,5 +30,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', ConversationView.as_view()),
     url(r'^chat/conversation/$', TemplateTestView.as_view()),
+    url(r'^chat/inbox/$', LatestConversationMessageView.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

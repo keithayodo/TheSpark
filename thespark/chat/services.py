@@ -19,6 +19,7 @@ from users.models import (
 from .models import (
     Conversation,
     ChatMessage,
+    LastConvoMessage,
 )
 
 
@@ -34,7 +35,13 @@ class ChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatMessage
         fields = ('relation','message','created_at')
-        partial = True
+        #partial = True
+
+class LastConvoMessageSerializer(serializers.ModelSerializer):
+    relation = ConversationSerializer()
+    class Meta:
+        model = LastConvoMessage
+        fields = ('first_name','message','created_at')
 
 class ConversationService:
 
@@ -136,10 +143,24 @@ class ChatService:
 
 class InboxService:
     #pass convo id to get last message
-    def get_latest_message_per_converstation(self,user):
+
+    def get_serializer(self):
+        return LastConvoMessageSerializer
+
+    def get_latest_message_per_user_converstation(self,user):
+        if isinstance(user,SparkUser):
+            latest_messages = LastConvoMessage.objects.get(relation__user_instance=user)
+            return latest_messages
+        elif isinstance(user,CounsellorUser):
+            latest_messages = LastConvoMessage.objects.get(relation__counsellor_instance=user)
+            return latest_messages
+        else:
+            raise exceptions.PermissionDenied(detail="You don't have the required permission to view this resource.")
+
+        """
         latest_messages = LastConvoMessage.objects.filter(sender=user).order_by('created_at')
         return latest_messages
-
+        """
 
 
     """
