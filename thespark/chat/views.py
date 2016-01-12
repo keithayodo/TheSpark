@@ -12,6 +12,8 @@ IsAuthenticatedOrReadOnly,
 )
 from rest_framework import exceptions
 
+from thespark_drf_utils.drf_utils import DRFUtils
+
 from .services import (
     ConversationService,
     ChatService,
@@ -20,29 +22,50 @@ from .services import (
 
 class ConversationView(APIView):
     permission_classes = (IsAuthenticated,)
-    def get(self,request,id,format=None):
+    def post(self,request,id,format=None):#create new conversation
         conversationService = ConversationService()
-        convo = conversationService.check_conversation_exist(user=request.user,id=id)
-        #line above probabbly won't be here in production (should be in services.py)
+        messages = conversationService.get_user_conversation_messages(user=request.user,id=id)
         serializer_class = conversationService.get_serializer()
-        serialized_data = serializer_class(convo)
+        serialized_data = serializer_class(messages,many=True)
         return Response(serialized_data.data)
+
+
+class ChatView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request,id,format=None):#get messages for particular conversation
+        chatService = ChatService()
+        messages = chatService.get_user_conversation_messages(user=request.user,id=id)
+        serializer_class = chatService.get_serializer()
+        serialized_data = serializer_class(messages,many=True)
+        return Response(serialized_data.data)
+
+    def post(self,request,id,format=None):#post new message to a particular conversation
+        required_keys = ["message"]
+        dRFUtils = DRFUtils()
+        missing_keys = dRFUtils.check_missing_keys(request.data,required_keys)
+        if missing_keys:
+            dRFUtils.keys_not_found(missing_keys)
+        else:
+            chatService = ChatService()
+            new_message = chatService.add_message(sender=request.user,id=id,data=request.data)
+            serializer_class = chatService.get_serializer()
+            serialized_data = serializer_class(new_message)
+            return Response(serialized_data.data)
 
 class LatestConversationMessageView(APIView):
     permission_classes = (IsAuthenticated,)
-    def get(self,request,format=None):
+    def get(self,request,format=None):#get latest message for every coversation
         inboxService = InboxService()
         latest_convos = inboxService.get_latest_message_per_user_converstation(user=request.user)
         serializer_class = inboxService.get_serializer()
         serialized_data = serializer_class(latest_convos,many=True)
         return Response(serialized_data.data)
 
-#drf template test
 class TemplateTestView(APIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'chat/index.html'
-    def get(self,request,format=None):
+    def get(self,request,format=None):#testing django templates + drf
         conversationService = ConversationService()
         convos = conversationService.get_user_conversations(user=request.user)
         serializer_class = conversationService.get_serializer()
