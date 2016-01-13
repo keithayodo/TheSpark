@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 
@@ -15,8 +17,8 @@ class Forum(models.Model):
     def __unicode__(self):
         return self.title
 
-class ForumMember(models.Model):
-    forum_relation = models.ForeignKey(Forum,help_text="Forum which user is a memebr.")
+class Member(models.Model):
+    forum_relation = models.ForeignKey(Forum,help_text="Forum which user is a member.")
     user_relation = models.ForeignKey(AllUser, help_text="User who has joined a forum.")
 
     class Meta:
@@ -42,7 +44,7 @@ class LastForumMessage(models.Model):
     relation = models.OneToOneField(Forum,help_text="Last/latest message sent in forum.")
     first_name = models.CharField(max_length=200,help_text="First name of last message sender.")
     last_name = models.CharField(max_length=200,help_text="Last name of last message sender.")
-    mesasge = models.CharField(max_length=1000,help_text="Last message sent in forum.")
+    message = models.CharField(max_length=1000,help_text="Last message sent in forum.")
     created_at = models.DateTimeField(help_text="Time when last message was sent in forum.")
 
     def __unicode__(self):
@@ -65,3 +67,24 @@ class ForumReport(models.Model):
 
     def __unicode__(self):
         return '{0} => {1}'.format(self.relation, self.forum_relation.title)
+
+@receiver(post_save,sender=ForumMessage,dispatch_uid="my.post.forum.message.signal")
+def forum_message_on_save(sender,**kwargs):
+    if kwargs.get('created',False):
+        new_message = kwargs.get('instance')
+        try:
+            last_forum_message = LastForumMessage.objects.get(relation=new_message.relation)
+            last_forum_message.first_name = new_message.sender.first_name
+            last_forum_message.last_name = new_message.sender.last_name
+            last_forum_message.message = new_message.message
+            last_forum_message.created_at = new_message.created_at
+            last_forum_message.save()
+        except LastForumMessage.DoesNotExist as e:
+            new_last_forum_message = LastForumMessage.objects.create(
+                relation = new_message.relation,
+                first_name = new_message.sender.first_name,
+                last_name = new_message.sender.last_name,
+                message = new_message.message,
+                created_at = new_message.created_at
+            )
+            new_last_forum_message.save()

@@ -135,7 +135,7 @@ class ChatService:
     def get_user_conversation_messages(self,user,id):
         conversationService = ConversationService()
         convo = conversationService.does_user_belong_to_convo(user=user,id=id)
-        messages = ChatMessage.objects.filter(relation=convo)
+        messages = ChatMessage.objects.filter(relation=convo).order_by('created_at')
         return messages
 
     #id id ID of convo we're adding the message to
@@ -146,7 +146,8 @@ class ChatService:
         data['relation'] = convo
         serialized_data = serializer_class(data=data)
         if serialized_data.is_valid():
-            new_message = ChatMessage.create(relation=convo,sender=sender,message=message)
+            new_message = ChatMessage.objects.create(relation=convo,sender=sender,message=data.message)
+            new_message.save()
             return new_message
         else:
             raise exceptions.ParseError(detail=serialized_data.errors)
