@@ -20,17 +20,20 @@ from django.contrib import admin
 from rest_framework import routers, serializers, viewsets
 
 from chat.views import (
-    #ConversationView,
     TemplateTestView,
     LatestConversationMessageView,
     ChatView,
+    AddOrGetConversationView,
+    GetConversationsView,
 )
 
 urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/chat/messages/(?P<id>[0-9]+)/$', ChatView.as_view()),#conversation id
-    url(r'^chat/conversation/$', TemplateTestView.as_view()),
+    url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', AddOrGetConversationView.as_view()),
     url(r'^api/chat/inbox/$', LatestConversationMessageView.as_view()),
+    url(r'^api/chat/conversations/$', GetConversationsView.as_view()),#may not be used in production, as purpose may be served with api/chat/inbox
+    url(r'^chat/conversation/$', TemplateTestView.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

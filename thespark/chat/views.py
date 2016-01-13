@@ -20,15 +20,23 @@ from .services import (
     InboxService,
     )
 
-class ConversationView(APIView):
+class AddOrGetConversationView(APIView):
     permission_classes = (IsAuthenticated,)
-    def post(self,request,id,format=None):#create new conversation
+    def post(self,request,id,format=None):#create new conversation or get existing
         conversationService = ConversationService()
-        messages = conversationService.get_user_conversation_messages(user=request.user,id=id)
+        convo = conversationService.get_or_create_conversation(user=request.user,id=id)
         serializer_class = conversationService.get_serializer()
-        serialized_data = serializer_class(messages,many=True)
+        serialized_data = serializer_class(convo)
         return Response(serialized_data.data)
 
+class GetConversationsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request,format=None):#get all conversations for user
+        conversationService = ConversationService()
+        convos = conversationService.get_user_conversations(user=request.user)
+        serializer_class = conversationService.get_serializer()
+        serialized_data = serializer_class(convos,many=True)
+        return Response(serialized_data.data)
 
 class ChatView(APIView):
     permission_classes = (IsAuthenticated,)

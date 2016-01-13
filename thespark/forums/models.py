@@ -4,7 +4,7 @@ from django.db import models
 
 # Create your models here.
 
-from users.models import AllUser
+from users.models import AllUser, SparkUser
 
 class Forum(models.Model):
     title = models.CharField(max_length=50,help_text="Title of the forum.")
@@ -37,3 +37,8 @@ class ForumMessage(models.Model):
 
     def __unicode__(self):
         return '{0} :{1}'.format(self.sender,self.message)
+
+class ForumRequest(models.Model):
+    relation = models.ForeignKey(SparkUser,help_text="Spark user requesting a new forum.")
+    message = models.CharField(max_length=1000,help_text="Message content.")
+    created_at = models.DateTimeField(editable=False,auto_now_add=True,help_text="Date and time of forum request submission.")
