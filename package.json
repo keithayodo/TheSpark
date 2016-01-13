@@ -1,0 +1,21 @@
+{
+  "name": "thespark",
+  "version": "1.0.0",
+  "description": "\"chat,forums,events targeting university students\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify index.js -o bundle.js"
+  },
+  "author": "Nigel Nindo",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "reactify": "^1.1.1",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "cookies": "^0.5.1",
+    "react": "^0.14.6"
+  }
+}
