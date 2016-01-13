@@ -61,13 +61,13 @@ class ForumReportSerializer(serializers.ModelSerializer):
 
 
 """
-1 => Get the latest mesasge in all forums a user is subscribed to[GET][x]
-2 => Subcribe a user to a forum[POST][x]
-3 => Unsubscribe a user from a forum[POST][x]
-4 => Get a list of forum messages[GET][x]
-5 => Allow a spark user to request a forum[POST][x]
-6 => Allow a spark user to report a forum[POST][]
-7 => Allow a spark user to post a message to a forum[POST][x]
+1 => Get the latest mesasge in all forums a user is subscribed to[GET][x][x]
+2 => Subcribe a user to a forum[POST][x][x]
+3 => Unsubscribe a user from a forum[POST][x][x]
+4 => Get a list of forum messages[GET][x][x]
+5 => Allow a spark user to request a forum[POST][x][x]
+6 => Allow a spark user to report a forum[POST][x][x]
+7 => Allow a spark user to post a message to a forum[POST][x][x]
 """
 
 class ForumService:
@@ -93,9 +93,10 @@ class MemberService:
 
     #assumes user is authenticated
     #return None if user is already subscribed
-    def subsribe_user_to_forum(self,user,id):
-        if self.is_user_subscribed_to_forum(user=user,id=id):
-            return None
+    def subscribe_user_to_forum(self,user,id):
+        forum_member = self.is_user_subscribed_to_forum(user=user,id=id)
+        if forum_member is not None:
+            return forum_member
         else:
             new_subscriber = Member.objects.create(forum_relation__pk=id,user_relation=user)
             return new_subscriber
@@ -105,10 +106,11 @@ class MemberService:
         forum_member = self.is_user_subscribed_to_forum(user=user,id=id)
         if forum_member is not None:
             forum_member.delete()
+            return True #return true on delete, return object on create
         else:
-            return None
+            raise exceptions.NotFound(detail="It seems that you are not a member of this forum.")
 
-    def is_user_subscribed_to_forum(self,user,id):
+    def is_user_subscribed_from_forum(self,user,id):
         try:
             forum_member = Member.objects.get(user_relation=user,forum_relation__pk=id)
             return forum_member
@@ -157,7 +159,7 @@ class ForumRequestService:
     def get_serializer(self):
         return ForumRequestSerializer
 
-    def add_new_forum_request(self,user,data,id):
+    def add_new_forum_request(self,user,data):
         if isinstance(user,SparkUser):
             forumService = ForumService()
             data['relation'] = user
