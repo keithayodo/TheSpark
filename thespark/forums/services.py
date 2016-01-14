@@ -3,7 +3,7 @@ from rest_framework import (
     exceptions
 )
 
-from user.services import (
+from users.services import (
     AllUserSerializer,
     SparkUserSerializer,
 )
@@ -134,7 +134,7 @@ class ForumMessageService:
             if serialized_data.is_valid():
                 new_forum_message = ForumMessage.objects.create(
                     sender = user,
-                    relation = member.forum_relation
+                    relation = member.forum_relation,
                     message = data.message
                 )
                 new_forum_message.save()
@@ -171,7 +171,7 @@ class ForumRequestService:
                     forum_name = data.name,
                     message = data.message
                     )
-                    new_forum_request.save()
+                new_forum_request.save()
                 return new_forum_request
             else:
                 raise exceptions.ParseError(detail=serialized_data.data)

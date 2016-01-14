@@ -27,6 +27,15 @@ from chat.views import (
     GetConversationsView,
 )
 
+from forums.views import (
+    ForumView,
+    LastForumMessageView,
+    SubscribeForumView,
+    UnsubscribeForumView,
+    ForumRequestView,
+    ForumReportView,
+)
+
 urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
@@ -35,5 +44,11 @@ urlpatterns = [
     url(r'^api/chat/inbox/$', LatestConversationMessageView.as_view()),
     url(r'^api/chat/conversations/$', GetConversationsView.as_view()),#may not be used in production, as purpose may be served with api/chat/inbox
     url(r'^chat/conversation/$', TemplateTestView.as_view()),
+    url(r'^api/forum/(?P<id>[0-9]+)/$',ForumView.as_view()),
+    url(r'^api/forum/inbox/$',LastForumMessageView.as_view()),
+    url(r'^api/forum/subscribe/(?P<id>[0-9]+)/$',SubscribeForumView.as_view()),
+    url(r'^api/forum/unsubscribe/(?P<id>[0-9]+)/$',UnsubscribeForumView.as_view()),
+    url(r'^api/forum/request/(?P<id>[0-9]+)/$',ForumRequestView.as_view()),
+    url(r'^api/forum/report/(?P<id>[0-9]+)/$',ForumReportView.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
