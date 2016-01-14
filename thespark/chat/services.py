@@ -1,9 +1,11 @@
+import logging
+
 from rest_framework import (
     serializers,
     exceptions
 )
 
-from thespark_drf_utils.drf_utils import DRFUtils
+from thespark_drf_utils.drf_utils import UserUtils
 
 from users.services import (
     AllUserSerializer,
@@ -28,25 +30,19 @@ class ConversationSerializer(serializers.ModelSerializer):
     user_instance = SparkUserSerializer()
     class Meta:
         model = Conversation
-        fields = ('counsellor_instance','user_instance')
+        fields = ('pk','counsellor_instance','user_instance')
 
 class ChatMessageSerializer(serializers.ModelSerializer):
-    relation = ConversationSerializer()
+    relation = ConversationSerializer(required=False)
     class Meta:
         model = ChatMessage
-        fields = ('relation','message','created_at')
-        partial = True
-    """
-    def create(self,validated_data):
-        conversation_data = validated_data.pop('relation')
-        chat_message = User.objects.create(**validated_data)
-    """
+        fields = ('pk','relation','message','created_at')
 
 class LastConvoMessageSerializer(serializers.ModelSerializer):
     relation = ConversationSerializer()
     class Meta:
         model = LastConvoMessage
-        fields = ('first_name','message','created_at')
+        fields = ('relation','first_name','last_name','message','created_at')
 
 class ConversationService:
 
@@ -55,73 +51,70 @@ class ConversationService:
 
     def get_serializer(self):
         return ConversationSerializer
-    """
+
     def get_counsellor(self,id):
         try:
-            counsellor = CounsellorUser.objects.get(pk=id)
+            counsellor = CounsellorUser.objects.get(relation_id=id)#lookup reverse relationship
             return counsellor
-        except Exception as e:
-            raise exceptions.NotFound(detail="Counsellor with provide id not found.")
+        except CounsellorUser.DoesNotExist as e:
+            raise exceptions.NotFound(detail="The counsellor with provided id was not found.")
 
     def get_spark_user(self,id):
         try:
-            spark_user = SparkUser.objects.get(pk=id)
+            spark_user = SparkUser.objects.get(relation_id=id)
             return spark_user
-        except Exception as e:
-            raise exceptions.NotFound(detail="Spark user with provided id not found.")
-    """
+        except SparkUser.DoesNotExist as e:
+            raise exceptions.NotFound(detail="The spark user with provided id was not found.")
+
     def create_new_conversation_by_spark_user(self,spark_user,counsellor_id):
         try:
-            convo = Conversation.objects.get(counsellor_instance__pk=counsellor_id,user_instance=user)
+            counsellor_instance = self.get_counsellor(id=counsellor_id)
+            convo = Conversation.objects.get(counsellor_instance=counsellor_instance,user_instance=spark_user)
             return convo
         except Conversation.DoesNotExist as e:
-            new_convo = Conversation.objects.create(counsellor_instance__pk=counsellor_id,user_instance=user_instance)
-            new_convo.save()
+            new_convo = Conversation.objects.create(counsellor_instance=counsellor_instance,user_instance=spark_user)
+            #new_convo.save()
             return new_convo
 
 
     def create_new_conversation_by_consellor(self,counsellor,spark_user_id):
         try:
-            convo = Conversation.objects.get(user_instance__pk=spark_user_id,counsellor_instance=counsellor)
+            spark_user = self.get_spark_user(id=spark_user_id)
+            print 'we got a spark user :)'
+            convo = Conversation.objects.get(user_instance=spark_user,counsellor_instance=counsellor)
             return convo
         except Conversation.DoesNotExist as e:
-            new_convo = Conversation.objects.create(user_instance__pk=spark_user_id,counsellor_instance=counsellor)
-            new_convo.save()
+            new_convo = Conversation.objects.create(user_instance=spark_user,counsellor_instance=counsellor)
+            #new_convo.save()
             return new_convo
 
     def get_or_create_conversation(self,user,id):
-        if isinstance(user,SparkUser):
-            convo = self.create_new_conversation_by_spark_user(spark_user=user,counsellor_id=id)
+        userUtils = UserUtils()
+        user_type = userUtils.get_user_instance_updated(user=user)
+        if user_type[1] == 'spark_user':
+            convo = self.create_new_conversation_by_spark_user(spark_user=user_type[0],counsellor_id=id)
             return convo
-        elif isinstance(user,CounsellorUser):
-            convo = self.create_new_conversation_by_consellor()
+        elif user_type[1] == 'counsellor_user':
+            print 'request is from counsellor :)'
+            convo = self.create_new_conversation_by_consellor(counsellor=user_type[0],spark_user_id=id)
             return convo
         else:
             raise exceptions.PermissionDenied(detail="You don't have access to this resource via API")
 
     def does_user_belong_to_convo(self,user,id):
         try:
-            if isinstance(user,SparkUser):
-                convo = self.viewset.get(user_instance=user,pk=id)
+            userUtils = UserUtils()
+            user_type = userUtils.get_user_instance_updated(user=user)
+            if user_type[1] == 'spark_user':
+                convo = self.viewset.get(user_instance=user_type[0],pk=id)
                 return convo
-            elif isinstance(user,CounsellorUser):
-                convo = self.viewset.get(counsellor_instance=user,pk=id)
+            elif user_type[1] == 'counsellor_user':
+                convo = self.viewset.get(counsellor_instance=user_type[0],pk=id)
                 return convo
             else:
                 raise exceptions.PermissionDenied(detail="Yo do not have permission to view this resource via API.")
         except Conversation.DoesNotExist as e:
             raise exceptions.NotFound(detail="Conversation with provided id not found.")
-
-    def get_user_conversations(self,user):
-        if isinstance(user,SparkUser):
-            convos = self.viewset.filter(user_instance=user)
-            return convos
-        elif isinstance(user,CounsellorUser):
-            convos = self.viewset.filter(counsellor_instance=user)
-            return convos
-        else:
-            raise exceptions.PermissionDenied(detail="No permission to view this content via API.")
-
 
 class ChatService:
 
@@ -129,25 +122,34 @@ class ChatService:
         self.viewset = ChatMessage.objects.all()
 
     def get_serializer(self):
-        ChatMessageSerializer
+        return ChatMessageSerializer
 
         #method placed here because return value can be serialized with this class's serializer
     def get_user_conversation_messages(self,user,id):
         conversationService = ConversationService()
         convo = conversationService.does_user_belong_to_convo(user=user,id=id)
-        messages = ChatMessage.objects.filter(relation=convo).order_by('created_at')
+        print 'user belongs to convo'
+        messages = ChatMessage.objects.filter(relation=convo).order_by('-created_at')
         return messages
 
     #id id ID of convo we're adding the message to
     def add_message(self,sender,id,data):
+        try:
+            data = data.dict()
+        except AttributeError as e:
+            data = data
+        print data
         conversationService = ConversationService()
         convo = conversationService.does_user_belong_to_convo(user=sender,id=id)
         serializer_class = self.get_serializer()
-        data['relation'] = convo
+        print 'we serialized the data :)'
+        #print data['relation']
         serialized_data = serializer_class(data=data)
         if serialized_data.is_valid():
-            new_message = ChatMessage.objects.create(relation=convo,sender=sender,message=data.message)
-            new_message.save()
+            print serialized_data
+            print 'we validated the data :)'
+            new_message = ChatMessage.objects.create(relation=convo,sender=sender,message=data['message'])
+            #new_message.save()
             return new_message
         else:
             raise exceptions.ParseError(detail=serialized_data.errors)
@@ -167,11 +169,15 @@ class InboxService:
         return LastConvoMessageSerializer
 
     def get_latest_message_per_user_converstation(self,user):
-        if isinstance(user,SparkUser):
-            latest_messages = LastConvoMessage.objects.get(relation__user_instance=user).order_by('created_at')
+        userUtils = UserUtils()
+        #print user.__class__.__name__ #method to show class name of object instance
+        #print "We got here"
+        user_type = userUtils.get_user_instance_updated(user=user)
+        if user_type[1] is 'spark_user':
+            latest_messages = LastConvoMessage.objects.filter(relation__user_instance=user_type[0]).order_by('-created_at')#order from earliest to latest
             return latest_messages
-        elif isinstance(user,CounsellorUser):
-            latest_messages = LastConvoMessage.objects.get(relation__counsellor_instance=user).order_by('created_at')
+        elif user_type[1] is 'counsellor_user':
+            latest_messages = LastConvoMessage.objects.filter(relation__counsellor_instance=user_type[0]).order_by('-created_at')
             return latest_messages
         else:
             raise exceptions.PermissionDenied(detail="You don't have the required permission to view this resource via API.")

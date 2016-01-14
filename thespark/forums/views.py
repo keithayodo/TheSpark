@@ -65,8 +65,9 @@ class UnsubscribeForumView(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self,request,id,format=None):#Allow a spark user to unsubscribe from a forum
         member_service = MemberService()
-        is_deleted = member_service.unsubscribe_user_to_forum(user=user,id=id)
-        return Response({deleted: is_deleted})
+        is_deleted = member_service.unsubscribe_user_from_forum(user=user,id=id)
+        deleted = {'deleted':is_deleted}
+        return Response(deleted)
 
 class ForumRequestView(APIView):
     permission_classes = (IsAuthenticated,)

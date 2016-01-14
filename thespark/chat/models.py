@@ -29,7 +29,8 @@ class ChatMessage(models.Model):
 
 class LastConvoMessage(models.Model):
     relation = models.OneToOneField(Conversation,help_text="Last message sent in this conversation.")
-    first_name = models.CharField(max_length=200,help_text="Full name of the sender")
+    first_name = models.CharField(max_length=200,help_text="First name of the sender")
+    last_name = models.CharField(max_length=200,help_text="Last Name of the sender")
     message = models.CharField(max_length=1000,help_text="Last message sent in this conversation.")
     created_at = models.DateTimeField(help_text="Time when the message was added to the system.")
 
@@ -43,6 +44,7 @@ def chat_message_on_save(sender,**kwargs):
         try:
             last_convo = LastConvoMessage.objects.get(relation=new_message.relation)
             last_convo.first_name = new_message.sender.first_name
+            last_convo.last_name = new_message.sender.last_name
             last_convo.message = new_message.message
             last_convo.created_at = new_message.created_at
             last_convo.save()

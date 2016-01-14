@@ -24,7 +24,7 @@ from chat.views import (
     LatestConversationMessageView,
     ChatView,
     AddOrGetConversationView,
-    GetConversationsView,
+    #GetConversationsView,
 )
 
 from forums.views import (
@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^api/chat/messages/(?P<id>[0-9]+)/$', ChatView.as_view()),#conversation id
     url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', AddOrGetConversationView.as_view()),
     url(r'^api/chat/inbox/$', LatestConversationMessageView.as_view()),
-    url(r'^api/chat/conversations/$', GetConversationsView.as_view()),#may not be used in production, as purpose may be served with api/chat/inbox
+    #url(r'^api/chat/conversations/$', GetConversationsView.as_view()),#may not be used in production, as purpose may be served with api/chat/inbox
     url(r'^chat/conversation/$', TemplateTestView.as_view()),
     url(r'^api/forum/(?P<id>[0-9]+)/$',ForumView.as_view()),
     url(r'^api/forum/inbox/$',LastForumMessageView.as_view()),

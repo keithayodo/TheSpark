@@ -3,6 +3,8 @@ from rest_framework import (
     exceptions
 )
 
+from thespark_drf_utils.drf_utils import UserUtils
+
 from users.services import (
     AllUserSerializer,
     SparkUserSerializer,
@@ -102,7 +104,7 @@ class MemberService:
             return new_subscriber
 
     #returns None if unable to verify user subscription
-    def unsubscribe_user_to_forum(self,user,id):
+    def unsubscribe_user_from_forum(self,user,id):
         forum_member = self.is_user_subscribed_to_forum(user=user,id=id)
         if forum_member is not None:
             forum_member.delete()
@@ -160,14 +162,16 @@ class ForumRequestService:
         return ForumRequestSerializer
 
     def add_new_forum_request(self,user,data):
-        if isinstance(user,SparkUser):
+        userUtils = UserUtils()
+        user_type = userUtils.get_user_instance_updated(user=user)
+        if user_type[1] == 'spark_user':
             forumService = ForumService()
-            data['relation'] = user
+            data['relation'] = user_type[0]
             serializer_class = self.get_serializer()
             serialized_data = serializer_class(data=data)
             if serialized_data.is_valid():
                 new_forum_request = ForumRequest.objects.create(
-                    relation = user,
+                    relation = user_type[0],
                     forum_name = data.name,
                     message = data.message
                     )
@@ -200,9 +204,11 @@ class ForumReportService:
         forumService = ForumService()
         forum = forumService.does_forum_exist(id=id)
         if forum is not None:
-            if isinstance(user,SparkUser):
+            userUtils = UserUtils()
+            user_type = userUtils.get_user_instance_updated(user=user)
+            if user_type[1] == 'spark_user':
                 new_forum_report = ForumReport.objects.create(
-                    relation = user,
+                    relation = user_type[0],
                     forum_relation = forum,
                     message = data.message,
                 )

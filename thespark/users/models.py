@@ -59,6 +59,9 @@ class AllUser(AbstractBaseUser, PermissionsMixin):
 	def get_short_name(self):
 		return self.first_name
 
+	def get_user_type(self):
+		return 'all_user'
+
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['first_name','last_name','occupation']
 
@@ -69,6 +72,9 @@ class CounsellorUser(models.Model):
 	"""
 	TODO: Profile picture URL
 	"""
+
+	def get_user_type(self):
+		return 'counsellor_user'
 
 	def __unicode__(self):
 		return self.relation.email
@@ -82,6 +88,9 @@ class SparkUser(models.Model):
 	"""
 	TODO: Profile picture URL
 	"""
+
+	def get_user_type(self):
+		return 'spark_user'
 
 	def __unicode__(self):
 		return self.relation.email
