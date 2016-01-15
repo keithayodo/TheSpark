@@ -57,6 +57,7 @@ class ForumView(APIView):
 class LastForumMessageView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request,format=None):#get latest message for all forums a user is subscribed to
+        print 'invoked Last forum message view'
         last_forum_message_service = LastForumMessageService()
         messages = last_forum_message_service.get_latest_message_per_forum_for_user(user=request.user)
         serializer_class = last_forum_message_service.get_serializer()

@@ -194,21 +194,24 @@ class ForumRequestService:
 
 class LastForumMessageService:
     def __init__(self):
-        self.viewset = LastForumMessage.objects.get()
+        self.viewset = LastForumMessage.objects.all()
 
     def get_serializer(self):
         return LastForumMessageSerializer
 
     def get_latest_message_per_forum_for_user(self,user):
-        user_member_in
-        #matched_forums = Forum.objects.filter(user_relation=user)
-        latest_messages = LastForumMessage.objects.filter(forum__member__user_relation=user).order_by('-created_at')
+        """
+        print 'we got to get_latest_message_per_forum_for_user function :)'
+        matched_forums = Forum.objects.filter(member__user_relation=user)
+        print 'we matched_forums :)'
+        latest_messages = LastForumMessage.objects.filter(forum__in=macthed_forums).order_by('-created_at')
+        """
+        latest_messages = LastForumMessage.objects.filter(relation__member__user_relation=user)
         """
         Query above explained:
         ->First of find all latest messages which match a relation objects
         ->Now that we have 'access' to that relation object, use a reverse relationship to find the member model, specified in underscore
         """
-        print 'we got to latest_messages :)'
         return latest_messages
 
 class ForumReportService:
