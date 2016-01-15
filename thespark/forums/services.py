@@ -206,7 +206,7 @@ class LastForumMessageService:
         print 'we matched_forums :)'
         latest_messages = LastForumMessage.objects.filter(forum__in=macthed_forums).order_by('-created_at')
         """
-        latest_messages = LastForumMessage.objects.filter(relation__member__user_relation=user)
+        latest_messages = LastForumMessage.objects.filter(relation__member__user_relation=user).order_by('-created_at')
         """
         Query above explained:
         ->First of find all latest messages which match a relation objects
