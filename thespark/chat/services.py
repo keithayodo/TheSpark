@@ -134,11 +134,12 @@ class ChatService:
 
     #id id ID of convo we're adding the message to
     def add_message(self,sender,id,data):
-        try:
-            data = data.dict()
-        except AttributeError as e:
-            data = data
-        print data
+        #use the hack below only if you have to add/manipulate keys in the dictionary to be serialized.
+        #try:
+        #    data = data.dict()
+        #except AttributeError as e:
+        #    data = data
+        #print data
         conversationService = ConversationService()
         convo = conversationService.does_user_belong_to_convo(user=sender,id=id)
         serializer_class = self.get_serializer()

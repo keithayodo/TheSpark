@@ -24,7 +24,6 @@ from chat.views import (
     LatestConversationMessageView,
     ChatView,
     AddOrGetConversationView,
-    #GetConversationsView,
 )
 
 from forums.views import (
@@ -34,6 +33,7 @@ from forums.views import (
     UnsubscribeForumView,
     ForumRequestView,
     ForumReportView,
+    ForumsView,
 )
 
 urlpatterns = [
@@ -42,13 +42,13 @@ urlpatterns = [
     url(r'^api/chat/messages/(?P<id>[0-9]+)/$', ChatView.as_view()),#conversation id
     url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', AddOrGetConversationView.as_view()),
     url(r'^api/chat/inbox/$', LatestConversationMessageView.as_view()),
-    #url(r'^api/chat/conversations/$', GetConversationsView.as_view()),#may not be used in production, as purpose may be served with api/chat/inbox
     url(r'^chat/conversation/$', TemplateTestView.as_view()),
     url(r'^api/forum/(?P<id>[0-9]+)/$',ForumView.as_view()),
+    url(r'^api/forums/$',ForumsView.as_view()),
     url(r'^api/forum/inbox/$',LastForumMessageView.as_view()),
     url(r'^api/forum/subscribe/(?P<id>[0-9]+)/$',SubscribeForumView.as_view()),
     url(r'^api/forum/unsubscribe/(?P<id>[0-9]+)/$',UnsubscribeForumView.as_view()),
-    url(r'^api/forum/request/(?P<id>[0-9]+)/$',ForumRequestView.as_view()),
+    url(r'^api/forum/request/$',ForumRequestView.as_view()),
     url(r'^api/forum/report/(?P<id>[0-9]+)/$',ForumReportView.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

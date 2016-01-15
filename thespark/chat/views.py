@@ -48,7 +48,7 @@ class ChatView(APIView):
         dRFUtils = DRFUtils()
         missing_keys = dRFUtils.check_missing_keys(request.data,required_keys)
         if missing_keys:
-            raise exceptions.ParseError(detail="Request contained malformed data.")
+            raise exceptions.ParseError(detail="Request contained missing required keys.")
         else:
             chatService = ChatService()
             new_message = chatService.add_message(sender=request.user,id=id,data=request.data)
