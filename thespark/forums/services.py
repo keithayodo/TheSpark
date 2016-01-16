@@ -64,7 +64,7 @@ class ForumReportSerializer(serializers.ModelSerializer):
 
 
 """
-1 => Get the latest mesasge in all forums a user is subscribed to[GET][x][x][]
+1 => Get the latest mesasge in all forums a user is subscribed to[GET][x][x][x]
 2 => Subcribe a user to a forum[POST][x][x][x]
 3 => Unsubscribe a user from a forum[POST][x][x][x]
 4 => Get a list of forum messages[GET][x][x][x]

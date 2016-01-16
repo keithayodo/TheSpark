@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'chat',
     'events',
     'forums',
+    'inbox',
     'rest_framework',
     'django_filters',
     'thespark_drf_utils',

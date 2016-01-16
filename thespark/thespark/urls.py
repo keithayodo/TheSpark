@@ -36,9 +36,12 @@ from forums.views import (
     ForumsView,
 )
 
+from inbox.views import GetInbox
+
 urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^api/inbox/$',GetInbox.as_view()),
     url(r'^api/chat/messages/(?P<id>[0-9]+)/$', ChatView.as_view()),#conversation id
     url(r'^api/chat/conversation/(?P<id>[0-9]+)/$', AddOrGetConversationView.as_view()),
     url(r'^api/chat/inbox/$', LatestConversationMessageView.as_view()),
