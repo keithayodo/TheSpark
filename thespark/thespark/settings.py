@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'forums',
     'inbox',
     'rest_framework',
-    'django_filters',
+    #'django_filters',
     'thespark_drf_utils',
 ]
 
